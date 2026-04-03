@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  bot1:
+    image: chat-bot:latest
+    container_name: bot1
+    ports:
+      - "8001:8000"
+    environment:
+      BOT_NAME: "bot-1"
+      MODEL_NAME: "llama3.2:latest"
+      OLLAMA_HOST: "http://10.0.2.2:11434"
+
+  bot2:
+    image: chat-bot:latest
+    container_name: bot2
+    ports:
+      - "8002:8000"
+    environment:
+      BOT_NAME: "bot-2"
+      MODEL_NAME: "llama3.2:latest"
+      OLLAMA_HOST: "http://10.0.2.2:11434"
