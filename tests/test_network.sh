@@ -1,24 +1,48 @@
 #!/bin/bash
-# @generated
-MAX_RETRIES=5
-COUNT=0
 
-echo "Waiting for Bot1 to be healthy..."
-# Use 'until' to wait until curl SUCCEEDS (exit code 0)
-until curl -s --fail http://127.0.0.1:8001/health > /dev/null; do
-    printf '.'
-    sleep 2
-done
-echo -e "\nBot1 is UP!"
+# Configuration
+MAX_RETRIES=10
+RETRY_INTERVAL=2
 
-echo -e "\nRunning Network Connectivity Tests..."
-echo "Testing Bot 1 Health..."
-curl -s http://localhost:8001/health | grep "ok" || exit 1
+# Helper for exiting with custom codes
+fail() {
+    echo -e "\n\033[0;31mERROR: $1\033[0m"
+    exit $2
+}
 
-echo "Testing Bot 2 Health..."
-curl -s http://localhost:8002/health | grep "ok" || exit 1
+# Generic wait function
+# Usage: wait_for_url <url> <service_name> <error_code>
+wait_for_url() {
+    local url=$1
+    local name=$2
+    local code=$3
+    
+    echo -n "Waiting for $name..."
+    for ((i=1; i<=MAX_RETRIES; i++)); do
+        if curl -s --fail "$url" > /dev/null; then
+            echo -e " [OK]"
+            return 0
+        fi
+        echo -n "."
+        sleep $RETRY_INTERVAL
+    done
+    fail "$name failed to become healthy after $((MAX_RETRIES * RETRY_INTERVAL))s" $code
+}
 
-echo "Testing Container-to-Host (Ollama) connectivity..."
-podman exec bot1 curl -s -I http://host.containers.internal:11434 | grep "200 OK" || exit 1
+echo "--- Phase 1: Infrastructure Health ---"
+wait_for_url "http://localhost:8001/health" "Bot 1" 10
+wait_for_url "http://localhost:8002/health" "Bot 2" 10
 
-echo "ALL SYSTEMS GO"
+echo "--- Phase 2: Host Connectivity (Ollama) ---"
+# Note: We don't necessarily need to loop here because if the container is up, 
+# the network interface should be ready.
+podman exec bot1 curl -s -I http://host.containers.internal:11434 | grep "200 OK" > /dev/null \
+    || fail "Bot 1 cannot reach Ollama on host" 20
+
+echo "--- Phase 3: Inter-Agent Relay ---"
+# Check if Bot 1 can resolve and ping Bot 2 on the internal network
+podman exec bot1 curl -s --fail http://bot2:8000/health > /dev/null \
+    || fail "Relay path Bot 1 -> Bot 2 is broken (Internal Network)" 30
+
+echo -e "\n\033[0;32m--- ALL TESTS PASSED ---\033[0m"
+exit 0
