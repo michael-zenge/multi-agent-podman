@@ -1,24 +1,28 @@
+# @generated
+# Reviewed and Edited by the author of the codebase.
+
+# This code is part of the Multi-Agent Podman project.
+#
+# Dockerfile - Dockerfile for the chatbot service
+
 FROM python:3.12-slim
 
-# Work directory inside the container
+# Keep curl for testing/health checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Install Python dependencies
-RUN pip install --no-cache-dir fastapi uvicorn ollama
+# Install dependencies including httpx for bot-to-bot talk
+RUN pip install --no-cache-dir fastapi uvicorn ollama httpx
 
-# Copy your bot code
 COPY bot_service.py .
 
-# Default environment variables (can be overridden at runtime)
-ENV BOT_NAME="bot-default"
-ENV MODEL_NAME="llama3.2:latest"
+# Use the DNS name as the default
+ENV OLLAMA_HOST="http://host.containers.internal:11434"
 
-# IMPORTANT for rootless Podman:
-# 10.0.2.2 is the host gateway inside slirp4netns
-ENV OLLAMA_HOST="http://10.0.2.2:11434"
-
-# Expose the bot's internal port
 EXPOSE 8000
 
-# Start the FastAPI service
+# Start the FastAPI app with Uvicorn
 CMD ["uvicorn", "bot_service:app", "--host", "0.0.0.0", "--port", "8000"]
