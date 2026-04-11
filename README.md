@@ -42,7 +42,9 @@ Since `.vscode/tasks.json` is excluded from version control via `.gitignore`, yo
     
 -   **Cleanup**: `podman-compose -p agent-test -f ./compose/podman-compose.yml down`
     
--   **Orchestration**: A sequence that runs the Startup, then the Test script, and finally the Cleanup.## 🧪 Testing Strategy
+-   **Orchestration**: A sequence that runs the Startup, then the Test script, and finally the Cleanup.
+
+## 🧪 Testing Strategy
 
 The project uses a "Fail-Fast" testing hierarchy:
 
