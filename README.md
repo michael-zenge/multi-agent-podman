@@ -1,15 +1,9 @@
 
 # Multi-Agent Podman System
 
-  
-
 This project implements a modular, multi-agent AI system using **FastAPI** and **Ollama**, orchestrated within **Podman** containers. The architecture supports agent-to-agent relaying and host-side GPU acceleration.
 
-  
-
 ## 🚀 Key Achievements
-
-  
 
 *  **Containerized AI Agents**: Fully containerized FastAPI services designed to interact with a host-managed Ollama instance.
 
@@ -19,11 +13,7 @@ This project implements a modular, multi-agent AI system using **FastAPI** and *
 
 *  **Automated Lifecycle**: VS Code Task integration for "one-click" environment startup, testing, and cleanup.
 
-  
-
 ## 🛠️ Workspace Setup
-
-  
 
 ### 1. Python Environment
 
@@ -44,6 +34,42 @@ Since `.vscode/tasks.json` is excluded from version control via `.gitignore`, yo
     
 -   **Orchestration**: A sequence that runs the Startup, then the Test script, and finally the Cleanup.
 
+## 🕹️ Using the Bots (Manual Testing)
+
+Once your containers are running, you can talk to them directly from your computer's terminal using a tool called `curl`. This mimics how a website or a mobile app would "speak" to the bots.
+
+### 1. Direct Chat (Talking to Bot 1)
+
+Use this command to send a message directly to **Bot 1**. It will process your text and respond back in the terminal.
+
+```bash
+curl -X POST http://localhost:8001/chat \
+     -H "Content-Type: application/json" \
+     -d '{"text": "Who are you?"}'
+```
+
+### 2. Inter-Agent Relay (Bot 1 talking to Bot 2)
+
+This is the "Multi-Agent" magic. This command sends a message to **Bot 1**, but tells it to forward that message to **Bot 2** over the internal container network. Bot 2 will then process it and send the answer back through Bot 1.
+
+```bash
+curl -X POST http://localhost:8001/relay/bot2 \
+     -H "Content-Type: application/json" \
+     -d '{"text": "Tell the other bot that Linux is awesome."}'
+```
+
+### 💡 Quick Explanation for Beginners:
+
+-   **`curl`**: A command-line tool used to transfer data to a server.
+    
+-   **`-X POST`**: Tells the bot you are "posting" (sending) new information to it.
+    
+-   **`http://localhost:8001`**: The "address" of your bot on your computer.
+    
+-   **`-H ...`**: A "Header." It tells the bot, "Hey, I'm sending this in a format called JSON."
+    
+-   **`-d '{"text": "..."}'`**: The actual "Data" or message you want the bot to read.
+
 ## 🧪 Testing Strategy
 
 The project uses a "Fail-Fast" testing hierarchy:
@@ -55,7 +81,6 @@ The project uses a "Fail-Fast" testing hierarchy:
 -   **Tech**: `pytest`, `TestClient`, and `respx` for mocking inter-agent HTTP calls.
     
 -   **Benefit**: Runs without starting containers or using VRAM.
-    
 
 ### Network Integration Tests (`/tests/test_network.sh`)
 
@@ -68,7 +93,6 @@ The project uses a "Fail-Fast" testing hierarchy:
     -   **20**: Host Connectivity Failure (Cannot reach Ollama on the host).
         
     -   **30**: Relay Failure (Bot 1 cannot communicate with Bot 2).
-        
 
 ## 📋 Automation Workflow
 
@@ -79,7 +103,6 @@ The project is configured to use a **VS Code Build Task** (`Ctrl+Shift+B`):
 2.  **Execution**: Runs `test_network.sh` from the `./tests/` directory with a retry-loop to wait for service readiness.
     
 3.  **Cleanup**: Executes `podman-compose down` immediately after tests finish (regardless of pass/fail) to free up system memory and GPU resources.
-    
 
 ----------
 
