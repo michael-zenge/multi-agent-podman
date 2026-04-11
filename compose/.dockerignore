@@ -1,0 +1,20 @@
+# Source Control
+.git
+.gitignore
+
+# Python Caches & Metadata
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor Settings
+.vscode/
+
+# Build Artifacts
+*.egg-info/
+dist/
+build/

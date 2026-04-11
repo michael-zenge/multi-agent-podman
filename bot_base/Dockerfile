@@ -1,6 +1,6 @@
 # @generated
 # Reviewed and Edited by the author of the codebase.
-
+#
 # This code is part of the Multi-Agent Podman project.
 #
 # Dockerfile - Dockerfile for the chatbot service
@@ -14,10 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install dependencies including httpx for bot-to-bot talk
-RUN pip install --no-cache-dir fastapi uvicorn ollama httpx
+# 1. Copy requirements from the workspace root (where the context starts) 
+COPY requirements.txt .
 
-COPY bot_service.py .
+# 2. Install dependencies 
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 3. Copy the bot code from the bot_base folder
+COPY bot_base/bot_service.py .
 
 # Use the DNS name as the default
 ENV OLLAMA_HOST="http://host.containers.internal:11434"

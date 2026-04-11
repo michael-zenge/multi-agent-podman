@@ -24,11 +24,29 @@ source venv-chatbots/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. VS Code Configuration
+### 2. Building the Multi-Agent System
+
+We use `podman-compose` to build a single "Gold Image" (`chat-bot:latest`) from the **workspace root**. This allows the container to access the global `requirements.txt` and ensures the container environment matches your local setup.
+
+**To build the image:**
+
+```bash
+podman-compose -p multi-agent -f ./compose/podman-compose.yml build
+
+```
+
+**To start the bots in the background:**
+
+```bash
+podman-compose -p multi-agent -f ./compose/podman-compose.yml up -d
+```
+
+### 3. VS Code Configuration
 
 Since `.vscode/tasks.json` is excluded from version control via `.gitignore`, you must manually create it in the `.vscode/` folder to enable the automated testing suite. This file should define:
 
 -   **Startup**: `podman-compose -p agent-test -f ./compose/podman-compose.yml up -d`
+The automated suite uses the `-p agent-test` label to create a separate, temporary sandbox that won't interfere with your manual `multi-agent` development session.
     
 -   **Cleanup**: `podman-compose -p agent-test -f ./compose/podman-compose.yml down`
     
