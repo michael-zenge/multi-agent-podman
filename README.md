@@ -104,6 +104,18 @@ The project is configured to use a **VS Code Build Task** (`Ctrl+Shift+B`):
     
 3.  **Cleanup**: Executes `podman-compose down` immediately after tests finish (regardless of pass/fail) to free up system memory and GPU resources.
 
+## 🔮 Future Directions: Transition to RESTful Architecture
+
+While the current implementation uses an **Action-Oriented (RPC)** style for simplicity, a planned evolution for this project is to adopt a strict **Resource-Oriented (REST)** architecture. This transition will align the system with industry standards for scalability and predictability.
+
+### Current vs. Future API Mapping
+|Feature|Current (Action-Oriented)|Future (RESTful/CRUD)|
+|:--|:--|:--|
+|Logic Focus|Processes an "Action" (Verb)|Manages a "Resource" (Noun)|
+|Endpoints|`POST /chat`, `POST /relay`|`POST /messages`, `GET /conversations`|
+|State|Stateless (Forgetful)|Stateful (Persistence via Database)|
+|HTTP Methods|Primarily `POST`|`GET`, `POST`, `PUT`, `DELETE`|
+
 ----------
 
 **Note on Development**: The codebase and automation scripts were generated in collaboration with **Gemini 3 Flash** and have been fully reviewed and verified by the author.
