@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# @generated
+# Reviewed and Edited by the author of the codebase.
+#
+# This code is part of the Multi-Agent Podman project.
+
 # Configuration
 MAX_RETRIES=10
 RETRY_INTERVAL=2

@@ -1,4 +1,7 @@
 # @generated
+# Reviewed and Edited by the author of the codebase.
+#
+# This code is part of the Multi-Agent Podman project.
 
 #import pytest
 import respx
